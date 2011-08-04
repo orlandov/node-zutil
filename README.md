@@ -17,6 +17,8 @@ plus zone_list (which brings us to a whopping total of 4 APIs).
     var yetAnotherZone = zutil.getZoneById(20);
     var state = zutil.getZoneState('foo');
     var allZones = zutil.listZones();
+    var serviceState = zutil.getZoneServiceState(
+                          'adminui', 'svc:/milestone/multi-user:default');
 
     zutil.getZoneAttributes(someOtherZone.name, function(error, attrs) {
       for (var i = 0; i < attrs.length; i++) {

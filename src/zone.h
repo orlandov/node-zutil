@@ -11,6 +11,7 @@ class Zone {
   static v8::Handle<v8::Value> GetZone(const v8::Arguments &args);
   static v8::Handle<v8::Value> GetZoneById(const v8::Arguments &args);
   static v8::Handle<v8::Value> GetZoneByName(const v8::Arguments &args);
+  static v8::Handle<v8::Value> GetZoneServiceState(const v8::Arguments &args);
   static v8::Handle<v8::Value> ListZones(const v8::Arguments &args);
 
  protected:

@@ -68,6 +68,32 @@ module.exports = testCase({
     test.equal(zones[0].id, 0);
     test.equal(zones[0].name, 'global');
     test.done();
-  }
+  },
 
+  getOnlineZoneServiceState: function(test) {
+    var state = zutil.getZoneServiceState('adminui', 'svc:/milestone/multi-user:default');
+    test.equal(state, 'online');
+    test.done();
+  },
+
+  getDisabledZoneServiceStateInvalidService: function(test) {
+    // Try a service that is likely to be in the disabled state.
+    var state = zutil.getZoneServiceState('adminui', 'svc:/network/rexec:default');
+    test.equal(state, 'disabled');
+    test.done();
+  },
+
+  getZoneServiceStateInvalidZone: function(test) {
+    test.throws(function () {
+      zutil.getZoneServiceState('dontexist', 'svc:/milestone/multi-user:default');
+    });
+    test.done();
+  },
+
+  getZoneServiceStateInvalidService: function(test) {
+    test.throws(function () {
+      zutil.getZoneServiceState('dontexist', 'svc:/milestone/multi-user:default');
+    });
+    test.done();
+  }
 });

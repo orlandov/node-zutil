@@ -17,6 +17,7 @@
 #include "zutil_common.h"
 #include "zonecfg.h"
 
+
 #ifdef SunOS
 typedef struct zone_attrtab zone_attrtab_t;
 

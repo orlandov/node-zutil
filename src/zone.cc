@@ -5,6 +5,7 @@
 #include <string.h>
 #ifdef SunOS
 #include <zone.h>
+#include <libscf.h>
 #endif
 
 #include <node.h>
@@ -111,6 +112,53 @@ v8::Handle<v8::Value> Zone::ListZones(const v8::Arguments &args) {
 
   return zones;
 }
+
+
+v8::Handle<v8::Value> Zone::GetZoneServiceState(const v8::Arguments &args) {
+  v8::HandleScope scope;
+  scf_handle_t *h = scf_handle_create(SCF_VERSION);
+  scf_value_t *zone;
+  scf_simple_prop_t *prop;
+  const char *state_str;
+
+  REQUIRE_STRING_ARG(args, 0, zonename);
+  REQUIRE_STRING_ARG(args, 1, service);
+
+  if ((zone = scf_value_create(h)) == NULL) {
+    RETURN_EXCEPTION("Could not create scf zone value");
+  }
+
+  if (scf_value_set_astring(zone, *zonename) != SCF_SUCCESS) {
+    RETURN_EXCEPTION("Could not set scf zone value");
+  }
+
+  if (scf_handle_decorate(h, "zone", zone) != SCF_SUCCESS) {
+    scf_value_destroy(zone);
+    RETURN_EXCEPTION("Invalid zone");
+  }
+
+  scf_value_destroy(zone);
+
+  if (scf_handle_bind(h) == -1) {
+    RETURN_EXCEPTION(scf_strerror(scf_error()));
+  }
+
+  if ((prop = scf_simple_prop_get(h, *service, SCF_PG_RESTARTER,
+    SCF_PROPERTY_STATE)) == NULL) {
+    RETURN_EXCEPTION(scf_strerror(scf_error()));
+  }
+
+  if ((state_str = scf_simple_prop_next_astring(prop)) == NULL) {
+    scf_simple_prop_free(prop);
+    RETURN_EXCEPTION(scf_strerror(scf_error()));
+  }
+
+  scf_handle_destroy(h);
+  scf_simple_prop_free(prop);
+
+  return v8::String::New(state_str);
+}
+
 #endif
 
 void Zone::Initialize(v8::Handle<v8::Object> target) {
@@ -120,5 +168,6 @@ void Zone::Initialize(v8::Handle<v8::Object> target) {
   NODE_SET_METHOD(target, "getZoneById", GetZoneById);
   NODE_SET_METHOD(target, "getZoneByName", GetZoneByName);
   NODE_SET_METHOD(target, "listZones", ListZones);
+  NODE_SET_METHOD(target, "getZoneServiceState", GetZoneServiceState);
 #endif
 }
